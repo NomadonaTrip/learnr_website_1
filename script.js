@@ -590,3 +590,237 @@ if (typeof Motion !== 'undefined' && !prefersReducedMotion.matches) {
     animateOnScroll.observe(el);
   });
 }
+
+// ====================================
+// Word-by-Word Text Reveal
+// ====================================
+function initWordReveal() {
+  const textElements = document.querySelectorAll('[data-word-reveal]');
+
+  textElements.forEach(el => {
+    const text = el.innerHTML;
+    // Split by words but preserve HTML tags for highlighting
+    const words = text.split(/\s+/);
+
+    el.innerHTML = words.map((word, i) => {
+      // Check if word contains emphasis tags
+      if (word.includes('<em>') || word.includes('</em>')) {
+        return `<span class="word highlight" style="--word-index: ${i}">${word.replace(/<\/?em>/g, '')}</span>`;
+      }
+      return `<span class="word" style="--word-index: ${i}">${word}</span>`;
+    }).join(' ');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('words-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    observer.observe(el);
+  });
+}
+
+// ====================================
+// Enhanced Parallax Effects
+// ====================================
+function initParallax() {
+  const parallaxElements = document.querySelectorAll('[data-parallax]');
+  if (parallaxElements.length === 0) return;
+
+  let ticking = false;
+
+  const handleScroll = () => {
+    const scrollY = window.scrollY;
+    const windowHeight = window.innerHeight;
+
+    parallaxElements.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      const speed = parseFloat(el.dataset.parallax) || 0.1;
+
+      // Only animate when in viewport
+      if (rect.top < windowHeight && rect.bottom > 0) {
+        const yPos = (rect.top - windowHeight / 2) * speed;
+        el.style.transform = `translateY(${yPos}px)`;
+      }
+    });
+
+    ticking = false;
+  };
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(handleScroll);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // Initial call
+  handleScroll();
+}
+
+// ====================================
+// Hero Scale on Scroll
+// ====================================
+function initHeroScale() {
+  const heroFloating = document.querySelector('.hero-floating');
+  const heroContent = document.querySelector('.hero-content');
+  if (!heroFloating && !heroContent) return;
+
+  let ticking = false;
+
+  const handleScroll = () => {
+    const scrollY = window.scrollY;
+    const maxScroll = 600;
+
+    if (scrollY < maxScroll) {
+      const progress = scrollY / maxScroll;
+
+      if (heroFloating) {
+        const scale = Math.max(0.85, 1 - progress * 0.15);
+        const opacity = Math.max(0, 1 - progress * 1.5);
+        heroFloating.style.transform = `scale(${scale})`;
+        heroFloating.style.opacity = opacity;
+      }
+
+      if (heroContent) {
+        const yOffset = scrollY * 0.3;
+        const opacity = Math.max(0, 1 - progress * 0.8);
+        heroContent.style.transform = `translateY(${yOffset}px)`;
+        heroContent.style.opacity = opacity;
+      }
+    }
+
+    ticking = false;
+  };
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(handleScroll);
+      ticking = true;
+    }
+  }, { passive: true });
+}
+
+// ====================================
+// Section Header Animations
+// ====================================
+function initSectionAnimations() {
+  const sectionHeaders = document.querySelectorAll('.section-header');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate-in');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2, rootMargin: '0px 0px -50px 0px' });
+
+  sectionHeaders.forEach(header => observer.observe(header));
+}
+
+// ====================================
+// Comparison Cards Animation
+// ====================================
+function initComparisonReveal() {
+  const comparisonContainer = document.querySelector('.comparison-container');
+  if (!comparisonContainer) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate-in');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  observer.observe(comparisonContainer);
+}
+
+// ====================================
+// Enhanced Grid Animations
+// ====================================
+function initGridAnimations() {
+  const grids = document.querySelectorAll('.bento-grid, .algorithm-grid, .steps-grid, .stats-grid, .faq-grid');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate-in');
+
+        // Also add animate-in to individual cards for icon animations
+        const cards = entry.target.querySelectorAll('.bento-card, .algo-card, .step-card, .stat-card, .faq-item');
+        cards.forEach((card, i) => {
+          setTimeout(() => {
+            card.classList.add('animate-in');
+          }, i * 60);
+        });
+
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -80px 0px' });
+
+  grids.forEach(grid => observer.observe(grid));
+}
+
+// ====================================
+// Smooth Scroll Progress Indicator
+// ====================================
+function initScrollProgress() {
+  // Create progress bar element
+  const progressBar = document.createElement('div');
+  progressBar.className = 'scroll-progress';
+  progressBar.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-primary-500), var(--color-accent));
+    z-index: 9999;
+    transition: width 0.1s ease-out;
+  `;
+  document.body.appendChild(progressBar);
+
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollPercent = (scrollTop / docHeight) * 100;
+    progressBar.style.width = `${scrollPercent}%`;
+  }, { passive: true });
+}
+
+// ====================================
+// Initialize All Premium Animations
+// ====================================
+function initPremiumAnimations() {
+  // Check for reduced motion preference
+  if (prefersReducedMotion.matches) {
+    // Still run basic observers but skip parallax/scale effects
+    initSectionAnimations();
+    initComparisonReveal();
+    initGridAnimations();
+    return;
+  }
+
+  // Initialize all animation systems
+  initWordReveal();
+  initParallax();
+  initHeroScale();
+  initSectionAnimations();
+  initComparisonReveal();
+  initGridAnimations();
+  initScrollProgress();
+}
+
+// Run on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPremiumAnimations);
+} else {
+  initPremiumAnimations();
+}
