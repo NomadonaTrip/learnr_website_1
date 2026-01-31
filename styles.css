@@ -107,8 +107,20 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto; /* Lenis handles scrolling */
   scroll-padding-top: 100px;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
 }
 
 body {
@@ -2267,17 +2279,14 @@ a {
 /* ====================================
    Animations (Scroll-triggered)
    ==================================== */
-[data-animate] {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s var(--ease-out-quart),
-              transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* Hero elements are animated by GSAP - don't hide them with CSS */
+.hero [data-animate] {
+  opacity: 1;
+  transform: none;
 }
 
-[data-animate].animate-in {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* GSAP handles scroll animations - no CSS initial states needed */
+/* The JS sets initial states via gsap.from() and animates on scroll */
 
 /* Word-by-word text reveal */
 [data-word-reveal] .word {
@@ -2299,71 +2308,29 @@ a {
   font-weight: 600;
 }
 
-/* Section label slide-in */
-.section-label {
-  opacity: 0;
-  transform: translateX(-20px);
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+/* Character-level kinetic typography for headlines */
+.hero-headline .char {
+  display: inline-block;
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
 
-.section-header.animate-in .section-label {
-  opacity: 1;
-  transform: translateX(0);
+.hero-headline .headline-line {
+  perspective: 1000px;
+  overflow: visible;
 }
 
-/* Section title slide-up */
-.section-title {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+/* Highlighted em in word reveal */
+[data-word-reveal] em,
+[data-word-reveal] .highlight {
+  color: var(--color-primary-700);
+  font-weight: 600;
+  font-style: normal;
 }
 
-.section-header.animate-in .section-title {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Section subtitle fade */
-.section-subtitle {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
-}
-
-.section-header.animate-in .section-subtitle {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Comparison cards - slide from sides */
-.comparison-before {
-  opacity: 0;
-  transform: translateX(-40px);
-  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.comparison-after {
-  opacity: 0;
-  transform: translateX(40px);
-  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
-}
-
-.comparison-container.animate-in .comparison-before,
-.comparison-container.animate-in .comparison-after {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.comparison-arrow {
-  opacity: 0;
-  transform: scale(0.5);
-  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s;
-}
-
-.comparison-container.animate-in .comparison-arrow {
-  opacity: 1;
-  transform: scale(1);
-}
+/* Section elements - GSAP handles scroll animations
+   Elements start visible; GSAP sets initial states and animates on scroll */
 
 /* Parallax elements */
 [data-parallax] {
@@ -2383,26 +2350,8 @@ a {
   opacity: 0.7;
 }
 
-/* Staggered animations for grids - Enhanced with spring easing */
-.bento-grid .bento-card,
-.algorithm-grid .algo-card,
-.steps-grid .step-card,
-.stats-grid .stat-card,
-.faq-grid .faq-item {
-  opacity: 0;
-  transform: translateY(30px) scale(0.98);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.bento-grid.animate-in .bento-card,
-.algorithm-grid.animate-in .algo-card,
-.steps-grid.animate-in .step-card,
-.stats-grid.animate-in .stat-card,
-.faq-grid.animate-in .faq-item {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
+/* GSAP handles scroll animations for grid cards - no CSS initial states needed */
+/* The grid items use GSAP ScrollTrigger for entrance animations */
 
 /* Tighter stagger delays for premium feel */
 .bento-grid.animate-in .bento-card:nth-child(1) { transition-delay: 0s; }
@@ -2455,6 +2404,267 @@ a {
 .steps-grid.animate-in .step-number {
   opacity: 1;
   transform: scale(1);
+}
+
+/* ====================================
+   Film Grain Texture Overlay
+   ==================================== */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  mix-blend-mode: overlay;
+  animation: grain 0.5s steps(10) infinite;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1%, -1%); }
+  20% { transform: translate(1%, 1%); }
+  30% { transform: translate(-1%, 1%); }
+  40% { transform: translate(1%, -1%); }
+  50% { transform: translate(-0.5%, 0.5%); }
+  60% { transform: translate(0.5%, -0.5%); }
+  70% { transform: translate(-0.5%, -0.5%); }
+  80% { transform: translate(0.5%, 0.5%); }
+  90% { transform: translate(0%, -1%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+    opacity: 0.015;
+  }
+}
+
+/* ====================================
+   Custom Cursor
+   ==================================== */
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 99999;
+  mix-blend-mode: difference;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cursor.cursor-visible {
+  opacity: 1;
+}
+
+.cursor-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease;
+}
+
+.cursor-ring {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.3s ease;
+}
+
+.cursor.cursor-hover .cursor-ring {
+  width: 60px;
+  height: 60px;
+  border-color: var(--color-accent);
+}
+
+.cursor.cursor-hover .cursor-dot {
+  transform: translate(-50%, -50%) scale(1.5);
+}
+
+.cursor.cursor-click .cursor-dot {
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+.cursor.cursor-click .cursor-ring {
+  width: 35px;
+  height: 35px;
+}
+
+/* Hide cursor on touch devices */
+@media (hover: none), (pointer: coarse) {
+  .cursor { display: none !important; }
+}
+
+/* Hide default cursor on desktop with hover */
+@media (hover: hover) and (pointer: fine) {
+  body:not(.cursor-disabled) {
+    cursor: none;
+  }
+
+  body:not(.cursor-disabled) a,
+  body:not(.cursor-disabled) button,
+  body:not(.cursor-disabled) input,
+  body:not(.cursor-disabled) textarea,
+  body:not(.cursor-disabled) select {
+    cursor: none;
+  }
+}
+
+/* ====================================
+   GPU Acceleration Hints
+   ==================================== */
+.hero-orb,
+.floating-card,
+.bento-card,
+.algo-card,
+.step-card,
+.stat-card,
+.faq-item,
+.cursor-dot,
+.cursor-ring,
+.comparison-card {
+  will-change: transform;
+}
+
+.hero-content,
+.section-header,
+.hero-headline,
+.hero-subheadline {
+  will-change: transform, opacity;
+}
+
+/* ====================================
+   Enhanced Glass Card Glow
+   ==================================== */
+.glass-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 50% at 30% 0%,
+    rgba(255, 255, 255, 0.4) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  border-radius: inherit;
+}
+
+.glass-card:hover::after {
+  opacity: 1;
+}
+
+/* ====================================
+   Enhanced Scroll Progress Bar
+   ==================================== */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-500) 0%,
+    var(--color-accent) 50%,
+    var(--color-primary-400) 100%
+  );
+  background-size: 200% 100%;
+  z-index: 10000;
+  box-shadow: 0 0 10px rgba(13, 115, 119, 0.5);
+  animation: progressGradient 3s linear infinite;
+}
+
+@keyframes progressGradient {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* ====================================
+   3D Card Tilt Effect
+   ==================================== */
+.bento-card,
+.algo-card,
+.step-card,
+.stat-card {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.bento-card.tilt-active,
+.algo-card.tilt-active,
+.step-card.tilt-active,
+.stat-card.tilt-active {
+  transition: none;
+}
+
+/* ====================================
+   Kinetic Typography Helpers
+   ==================================== */
+.split-word,
+.split-char {
+  display: inline-block;
+}
+
+.split-line {
+  display: block;
+  overflow: hidden;
+}
+
+.hero-headline .split-char,
+.section-title .split-word {
+  opacity: 0;
+  transform: translateY(50px) rotateX(-15deg);
+}
+
+.hero-headline.animate-complete .split-char,
+.section-title.animate-complete .split-word {
+  opacity: 1;
+  transform: translateY(0) rotateX(0);
+}
+
+/* Animated Underline Enhancement */
+.section-title em,
+.hero-headline em {
+  position: relative;
+  display: inline-block;
+}
+
+.section-title em::after,
+.headline-accent em::after {
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.section-title em.underline-visible::after,
+.headline-accent em.underline-visible::after {
+  transform: scaleX(1);
+}
+
+/* ====================================
+   Magnetic Button Effect
+   ==================================== */
+.btn-primary,
+.btn-cta,
+.btn-nav {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow var(--duration-normal) ease;
 }
 
 /* ====================================
