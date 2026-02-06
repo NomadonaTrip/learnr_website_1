@@ -734,10 +734,38 @@
           </p>
 
           <div class="final-cta-form">
-            <form class="email-form" id="earlyAccessForm">
-              <div class="form-group">
-                <input type="email" placeholder="Enter your email" required class="form-input">
-                <button type="submit" class="btn btn-cta">
+            <form class="early-access-form" id="earlyAccessForm" action="https://formspree.io/f/xpwdgokl" method="POST">
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="cta-name" class="form-label">Name</label>
+                  <input type="text" id="cta-name" name="name" placeholder="Your name" required class="form-input">
+                </div>
+                <div class="form-field">
+                  <label for="cta-email" class="form-label">Email</label>
+                  <input type="email" id="cta-email" name="email" placeholder="you@example.com" required class="form-input">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-field form-field-full">
+                  <label for="cta-course" class="form-label">Desired Course</label>
+                  <select id="cta-course" name="course" required class="form-input form-select">
+                    <option value="" disabled selected>Select a certification...</option>
+                    <option value="CBAP">CBAP — Certified Business Analysis Professional</option>
+                    <option value="CFA">CFA — Chartered Financial Analyst</option>
+                    <option value="PMP">PMP — Project Management Professional</option>
+                    <option value="CISSP">CISSP — Certified Information Systems Security Professional</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row form-row-other" id="otherCourseRow" style="display: none;">
+                <div class="form-field form-field-full">
+                  <label for="cta-other-course" class="form-label">Which course?</label>
+                  <input type="text" id="cta-other-course" name="other_course" placeholder="Enter your certification or course" class="form-input">
+                </div>
+              </div>
+              <div class="form-row form-row-submit">
+                <button type="submit" class="btn btn-cta btn-lg">
                   <span class="btn-text">Get Early Access</span>
                   <span class="btn-text-hover">Join Free →</span>
                 </button>

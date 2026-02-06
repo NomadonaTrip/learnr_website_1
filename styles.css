@@ -2183,25 +2183,50 @@ a {
   margin-bottom: var(--space-10);
 }
 
-/* Email Form */
-.email-form {
-  margin-bottom: var(--space-6);
+/* Early Access Form */
+.early-access-form {
+  max-width: 520px;
+  margin: 0 auto var(--space-6);
 }
 
-.form-group {
+.form-row {
   display: flex;
   gap: var(--space-3);
-  max-width: 500px;
-  margin: 0 auto;
+  margin-bottom: var(--space-4);
+}
+
+.form-row-submit {
+  margin-bottom: var(--space-2);
+  justify-content: center;
+}
+
+.form-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.form-field-full {
+  flex: 1 1 100%;
+}
+
+.form-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
 }
 
 .form-input {
-  flex: 1;
-  padding: var(--space-4) var(--space-5);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
   border: 1px solid rgba(13, 115, 119, 0.15);
   border-radius: var(--radius-md);
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: 15px;
   background: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0.95),
@@ -2211,6 +2236,20 @@ a {
     inset 2px 2px 5px rgba(13, 115, 119, 0.06),
     inset -2px -2px 5px rgba(255, 255, 255, 0.8);
   transition: all var(--duration-fast) ease;
+}
+
+.form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-4) center;
+  padding-right: var(--space-10);
+  cursor: pointer;
+}
+
+.form-select:invalid {
+  color: var(--color-text-muted);
 }
 
 .form-input:focus {
@@ -2232,6 +2271,7 @@ a {
   letter-spacing: 0.02em;
   color: var(--color-text-muted);
   margin-top: var(--space-3);
+  text-align: center;
 }
 
 /* Urgency Badge - Glassmorphic */
@@ -2914,12 +2954,8 @@ a {
     text-align: center;
   }
 
-  .form-group {
+  .form-row {
     flex-direction: column;
-  }
-
-  .form-input {
-    width: 100%;
   }
 
   .footer-main {

@@ -102,12 +102,14 @@ function updateNavbar() {
   }
 
   // Hide promo banner on scroll
-  if (scrollY > 100) {
-    promoBanner.style.transform = 'translateX(-50%) translateY(-100%)';
-    promoBanner.style.opacity = '0';
-  } else {
-    promoBanner.style.transform = 'translateX(-50%) translateY(0)';
-    promoBanner.style.opacity = '1';
+  if (promoBanner) {
+    if (scrollY > 100) {
+      promoBanner.style.transform = 'translateX(-50%) translateY(-100%)';
+      promoBanner.style.opacity = '0';
+    } else {
+      promoBanner.style.transform = 'translateX(-50%) translateY(0)';
+      promoBanner.style.opacity = '1';
+    }
   }
 
   lastScrollY = scrollY;
@@ -240,31 +242,66 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // Form Submission
 // ====================================
 if (earlyAccessForm) {
-  earlyAccessForm.addEventListener('submit', (e) => {
+  // Show/hide "Other" course text input
+  const courseSelect = document.getElementById('cta-course');
+  const otherCourseRow = document.getElementById('otherCourseRow');
+  const otherCourseInput = document.getElementById('cta-other-course');
+
+  if (courseSelect && otherCourseRow) {
+    courseSelect.addEventListener('change', () => {
+      if (courseSelect.value === 'Other') {
+        otherCourseRow.style.display = 'flex';
+        otherCourseInput.required = true;
+      } else {
+        otherCourseRow.style.display = 'none';
+        otherCourseInput.required = false;
+        otherCourseInput.value = '';
+      }
+    });
+  }
+
+  // Formspree submission via fetch
+  earlyAccessForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const emailInput = earlyAccessForm.querySelector('input[type="email"]');
     const submitBtn = earlyAccessForm.querySelector('button[type="submit"]');
-    const email = emailInput.value;
+    const formData = new FormData(earlyAccessForm);
 
-    // Disable button and show loading state
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="btn-text">Joining...</span>';
+    submitBtn.innerHTML = '<span class="btn-text">Submitting...</span>';
 
-    // Simulate API call (replace with actual implementation)
-    setTimeout(() => {
-      // Success state
-      submitBtn.innerHTML = '<span class="btn-text">You\'re In!</span>';
-      submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-      emailInput.value = '';
+    try {
+      const response = await fetch(earlyAccessForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' }
+      });
 
-      // Reset after delay
+      if (response.ok) {
+        submitBtn.innerHTML = '<span class="btn-text">You\'re In!</span>';
+        submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        earlyAccessForm.reset();
+        if (otherCourseRow) otherCourseRow.style.display = 'none';
+
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span class="btn-text">Get Early Access</span><span class="btn-text-hover">Join Free →</span>';
+          submitBtn.style.background = '';
+        }, 4000);
+      } else {
+        submitBtn.innerHTML = '<span class="btn-text">Something went wrong</span>';
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span class="btn-text">Get Early Access</span><span class="btn-text-hover">Join Free →</span>';
+        }, 3000);
+      }
+    } catch (err) {
+      submitBtn.innerHTML = '<span class="btn-text">Network error</span>';
       setTimeout(() => {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<span class="btn-text">Get Early Access</span><span class="btn-text-hover">Join Free →</span>';
-        submitBtn.style.background = '';
       }, 3000);
-    }, 1500);
+    }
   });
 }
 
