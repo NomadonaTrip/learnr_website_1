@@ -1,0 +1,2 @@
+[  403522ms] TypeError: Cannot read properties of null (reading 'style')
+    at updateNavbar (http://localhost:8080/script.js:109:17)
